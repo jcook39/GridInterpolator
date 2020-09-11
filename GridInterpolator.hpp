@@ -1,6 +1,6 @@
 #include <vector>
 #include <iostream>
-#include <array>
+
 
 class GridInterpolator{
 
@@ -13,16 +13,15 @@ private:
   int numberOfElements;
   int inputDimension;
   int outputDimension;
+
   
-  void checkGrid(std::vector< std::vector<double> > inputGrid);
-  bool isIncreasing(std::vector<double> subGrid);
   void stackGrid();
 
-  // void calculateWeights(std::array<double> x, std::array<int> leftIndex, std::array<double> alpha);
+  void calculateWeights(std::vector<double> x, std::vector<int> & leftIndex, std::vector<double> & alpha);
+  // int getLowIndex(double xi, std::vector<double> subGrid, int subGridSize, int inputNumber){
   // void interpolate(std::array<int> leftIndex, std::array<double> alpha,
   // 		     std::array<int> corner, std::array<double> coefficient, std::array<double> result);
   // bool flipCorner(std::array<int> corner);
-  
 
 public:
   GridInterpolator(std::vector< std::vector<double> > inputGrid, std::vector<double> outputValues);
@@ -50,37 +49,80 @@ GridInterpolator::GridInterpolator(std::vector< std::vector<double> > inputGrid,
     throw "The input grid and output values provided have in consistent dimensions.";
   }
 
-
   //Stack grid
   this->stackGrid();
 
   // Check input and output dimensions
   bool isOutputDimensionConsistent = this->outputDimension ==
     this->outputValues.size() / this->numberOfElements;
-  bool isInputDimensionConsistent = this->inputDimension == (this->offset.size() - 1);
+  if (!isOutputDimensionConsistent){
+    throw "The input dimension is not consistent with the provided grid";
+  }
   
+  bool isInputDimensionConsistent = this->inputDimension == (this->offset.size() - 1);
+  if (!isOutputDimensionConsistent){
+    throw "The input dimension is not consistent with the provided grid";
+  }
   
   
   std::cout << "Constructor Executed Succesfully" << std::endl;
   std::cout << "Number of Elements is: " << this->numberOfElements << "\n";
 }
 
-std::vector<double> GridInterpolator::eval(std::vector<double> point){
+std::vector<double> GridInterpolator::eval(std::vector<double> x){
   std::vector<int> leftIndex(inputDimension);
   std::vector<int> corner(inputDimension);
   std::vector<double> alpha(inputDimension);
   std::vector<double> coefficient(inputDimension);
   std::vector<double> result(outputDimension);
 
-  // calculateWeights(x, leftIndex, alpha);
+  this->calculateWeights(x, leftIndex, alpha);
   // while(true){
   //   interpolate(leftIndex, alpha, corner, coefficient, result);
   //   if (flipCorner(corner) == false){
   //     break;
   //   }
   // }
+
+  std::cout << "Print alpha = { ";
+  for(auto & val : alpha){
+    std::cout << val << " ";
+  }
+  std::cout << "} \n";
+
+  std::cout << "Print leftIndex = { ";
+  for(auto & val : leftIndex){
+    std::cout << val << " ";
+  }
+  std::cout << "} \n";
+
+  
   return result;
 }
+
+void GridInterpolator::calculateWeights(std::vector<double> x, std::vector<int> & leftIndex, std::vector<double> & alpha){
+  for(int ii = 0; ii < this->inputDimension; ii++){
+    double xi = x.at(ii);
+    int stackedGridEntryIndex = this->offset.at(ii);
+    int subGridSize = this->offset.at(ii+1) - this->offset.at(ii);
+    std::vector<double> subGrid(this->stackedGrid.begin() + stackedGridEntryIndex,
+				this->stackedGrid.begin() + stackedGridEntryIndex + subGridSize);
+    //int jj = getLowIndex(xi, subGrid, subGridSize, ii);
+    int jj = 0;
+    leftIndex.at(ii) = jj;
+    alpha.at(ii) = (xi - subGrid.at(jj)) / (subGrid.at(jj+1) - subGrid.at(jj));
+  }
+}
+
+// int GridInterpolator::getLowIndex(double xi, std::vector<double> subGrid, int subGridSize, int inputNumber){
+//   int ii;
+//   for(ii = 0; ii < (subGridSize - 2); ii++) {
+//     if(xi < subGrid.at(ii + 1)){
+//       break;
+//     }
+//   }
+//   return ii;
+//}
 
 void GridInterpolator::stackGrid(){
   offset.clear();

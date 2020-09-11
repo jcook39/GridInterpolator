@@ -10,6 +10,10 @@ int main(){
   
 
   GridInterpolator gridInterpolator(inputGrid, outputValues);
+
+  vector<double> inputVal = {1.5};
+  vector<double> outputVal = gridInterpolator.eval(inputVal);
   
   cout << "Main program executed succesfully. \n";
+  return 0;
 }
