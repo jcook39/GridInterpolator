@@ -11,9 +11,16 @@ int main(){
 
   GridInterpolator gridInterpolator(inputGrid, outputValues);
 
-  vector<double> inputVal = {1.5};
+  vector<double> inputVal = {1.3234};
   vector<double> outputVal = gridInterpolator.eval(inputVal);
   
   cout << "Main program executed succesfully. \n";
+
+  std::cout << "Print outputVal = { ";
+  for(auto & val : outputVal){
+    std::cout << val << " ";
+  }
+  std::cout << "} \n";
+  
   return 0;
 }

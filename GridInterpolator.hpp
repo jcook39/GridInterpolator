@@ -19,9 +19,9 @@ private:
 
   void calculateWeights(std::vector<double> x, std::vector<int> & leftIndex, std::vector<double> & alpha);
   int getLowIndex(double xi, std::vector<double> subGrid, int subGridSize, int inputNumber);
-  // void interpolate(std::array<int> leftIndex, std::array<double> alpha,
-  // 		     std::array<int> corner, std::array<double> coefficient, std::array<double> result);
-  // bool flipCorner(std::array<int> corner);
+  void interpolate(std::vector<int> & leftIndex, std::vector<double> & alpha,
+		   std::vector<int> & corner, std::vector<double> & coefficient, std::vector<double> & result);
+  bool switchCorner(std::vector<int> & corner);
 
 public:
   GridInterpolator(std::vector< std::vector<double> > inputGrid, std::vector<double> outputValues);
@@ -76,14 +76,6 @@ std::vector<double> GridInterpolator::eval(std::vector<double> x){
   std::vector<double> coefficient(inputDimension);
   std::vector<double> result(outputDimension);
 
-  this->calculateWeights(x, leftIndex, alpha);
-  // while(true){
-  //   interpolate(leftIndex, alpha, corner, coefficient, result);
-  //   if (flipCorner(corner) == false){
-  //     break;
-  //   }
-  // }
-
   std::cout << "Print alpha = { ";
   for(auto & val : alpha){
     std::cout << val << " ";
@@ -96,8 +88,36 @@ std::vector<double> GridInterpolator::eval(std::vector<double> x){
   }
   std::cout << "} \n";
 
-  
+  this->calculateWeights(x, leftIndex, alpha);
+  while(true){
+    this->interpolate(leftIndex, alpha, corner, coefficient, result);
+    if (this->switchCorner(corner) == false){
+      break;
+    }
+  }
   return result;
+}
+
+void GridInterpolator::interpolate(std::vector<int> & leftIndex, std::vector<double> & alpha,
+				   std::vector<int> & corner, std::vector<double> & coefficient,
+				   std::vector<double> & result){
+  double cornerCoefficient = 1;
+  int leadDimension = 1;
+  int valuesIndex = 0;
+  for(int ii = 0; ii < this->inputDimension; ii++){
+    coefficient.at(ii) = cornerCoefficient;
+    if(corner.at(ii) == 1){
+      cornerCoefficient *= alpha.at(ii);
+    } else {
+      cornerCoefficient *= 1 - alpha.at(ii);
+    }
+    valuesIndex += (leftIndex.at(ii) + corner.at(ii)) * leadDimension * this->outputDimension;
+    leadDimension *= this->offset.at(ii + 1) - this->offset.at(ii);
+  }
+
+  for(int ii = 0; ii < outputDimension; ii++){
+    result.at(ii) += cornerCoefficient * this->outputValues.at(valuesIndex + ii);
+  }
 }
 
 void GridInterpolator::calculateWeights(std::vector<double> x, std::vector<int> & leftIndex, std::vector<double> & alpha){
@@ -123,6 +143,18 @@ int GridInterpolator::getLowIndex(double xi, std::vector<double> subGrid, int su
   return ii;
 }
 
+bool GridInterpolator::switchCorner(std::vector<int> & corner){
+  for(int ii = 0; ii < this->inputDimension; ii++){
+    if(corner.at(ii) == 1){
+      corner.at(ii) = 0;
+    } else {
+      corner.at(ii) = 1;
+      return true;
+    }
+  }
+  return false;
+}
+
 void GridInterpolator::stackGrid(){
   offset.clear();
   offset.push_back(0);
@@ -135,15 +167,15 @@ void GridInterpolator::stackGrid(){
     stackedGrid.insert(stackedGrid.end(), subGrid.begin(), subGrid.end());
   }
   
-  // std::cout << "Print offset = { ";
-  // for(auto & val : offset){
-  //   std::cout << val << " ";
-  // }
-  // std::cout << "} \n";
+  std::cout << "Print offset = { ";
+  for(auto & val : offset){
+    std::cout << val << " ";
+  }
+  std::cout << "} \n";
 
-  // std::cout << "Print stackeGrid = { ";
-  // for(auto & val : stackedGrid){
-  //   std::cout << val << " ";
-  // }
-  // std::cout << "} \n";
+  std::cout << "Print stackeGrid = { ";
+  for(auto & val : stackedGrid){
+    std::cout << val << " ";
+  }
+  std::cout << "} \n";
 }
