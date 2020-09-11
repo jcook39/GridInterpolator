@@ -15,7 +15,7 @@ In Python, the equivalent gridded data set is generated and the RegularGridInter
 ```Python
 # Setup an N-D grid and instantiate RegularGridInterpolator
 import numpy as np
-from scipy.interpolate import RegaularGridInterpolator
+from scipy.interpolate import RegularGridInterpolator
 x = np.linspace(0, 5, 6)
 y = np.linspace(6, 10, 5)
 X, Y = np.meshgrid(x, y, indexing='ij')
