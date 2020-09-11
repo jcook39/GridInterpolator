@@ -18,7 +18,7 @@ private:
   void stackGrid();
 
   void calculateWeights(std::vector<double> x, std::vector<int> & leftIndex, std::vector<double> & alpha);
-  // int getLowIndex(double xi, std::vector<double> subGrid, int subGridSize, int inputNumber){
+  int getLowIndex(double xi, std::vector<double> subGrid, int subGridSize, int inputNumber);
   // void interpolate(std::array<int> leftIndex, std::array<double> alpha,
   // 		     std::array<int> corner, std::array<double> coefficient, std::array<double> result);
   // bool flipCorner(std::array<int> corner);
@@ -107,22 +107,21 @@ void GridInterpolator::calculateWeights(std::vector<double> x, std::vector<int> 
     int subGridSize = this->offset.at(ii+1) - this->offset.at(ii);
     std::vector<double> subGrid(this->stackedGrid.begin() + stackedGridEntryIndex,
 				this->stackedGrid.begin() + stackedGridEntryIndex + subGridSize);
-    //int jj = getLowIndex(xi, subGrid, subGridSize, ii);
-    int jj = 0;
+    int jj = getLowIndex(xi, subGrid, subGridSize, ii);
     leftIndex.at(ii) = jj;
     alpha.at(ii) = (xi - subGrid.at(jj)) / (subGrid.at(jj+1) - subGrid.at(jj));
   }
 }
 
-// int GridInterpolator::getLowIndex(double xi, std::vector<double> subGrid, int subGridSize, int inputNumber){
-//   int ii;
-//   for(ii = 0; ii < (subGridSize - 2); ii++) {
-//     if(xi < subGrid.at(ii + 1)){
-//       break;
-//     }
-//   }
-//   return ii;
-//}
+int GridInterpolator::getLowIndex(double xi, std::vector<double> subGrid, int subGridSize, int inputNumber){
+  int ii;
+  for(ii = 0; ii < (subGridSize - 2); ii++) {
+    if(xi < subGrid.at(ii + 1)){
+      break;
+    }
+  }
+  return ii;
+}
 
 void GridInterpolator::stackGrid(){
   offset.clear();
