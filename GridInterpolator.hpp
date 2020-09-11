@@ -19,7 +19,7 @@ private:
 
   void calculateWeights(std::vector<double> x, std::vector<int> & leftIndex, std::vector<double> & alpha);
   int getLowIndex(double xi, std::vector<double> subGrid, int subGridSize, int inputNumber);
-  void interpolate(std::vector<int> & leftIndex, std::vector<double> & alpha,
+  void addCornerContribution(std::vector<int> & leftIndex, std::vector<double> & alpha,
 		   std::vector<int> & corner, std::vector<double> & coefficient, std::vector<double> & result);
   bool switchCorner(std::vector<int> & corner);
 
@@ -90,7 +90,7 @@ std::vector<double> GridInterpolator::eval(std::vector<double> x){
 
   this->calculateWeights(x, leftIndex, alpha);
   while(true){
-    this->interpolate(leftIndex, alpha, corner, coefficient, result);
+    this->addCornerContribution(leftIndex, alpha, corner, coefficient, result);
     if (this->switchCorner(corner) == false){
       break;
     }
@@ -98,7 +98,7 @@ std::vector<double> GridInterpolator::eval(std::vector<double> x){
   return result;
 }
 
-void GridInterpolator::interpolate(std::vector<int> & leftIndex, std::vector<double> & alpha,
+void GridInterpolator::addCornerContribution(std::vector<int> & leftIndex, std::vector<double> & alpha,
 				   std::vector<int> & corner, std::vector<double> & coefficient,
 				   std::vector<double> & result){
   double cornerCoefficient = 1;
