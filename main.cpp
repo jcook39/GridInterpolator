@@ -1,4 +1,4 @@
-// Simple test program to get started
+// Simple examplex test program to get started
 #include <iostream>
 #include "GridInterpolator.hpp"
 
